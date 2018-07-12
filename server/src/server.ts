@@ -1,7 +1,3 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
 'use strict'
 
 import {
@@ -21,11 +17,7 @@ import {
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all)
-
-// Create a simple text document manager. The text document manager
-// supports full document sync only
 let documents: TextDocuments = new TextDocuments()
-
 let hasConfigurationCapability: boolean = false
 let hasWorkspaceFolderCapability: boolean = false
 let hasDiagnosticRelatedInformationCapability: boolean = false
@@ -123,11 +115,11 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
   // The validator creates diagnostics for all uppercase words length 2 and more
   const text = textDocument.getText()
-  const pattern = /\/\/ [\w]+ :: .*/g
+  const pattern = /\/\/(| )[\w]+(| )[::]{2}(| )[\w]+.*/g
   let m: RegExpExecArray
 
   let problems = 0
-  let diagnostics: Diagnostic[] = []
+  const diagnostics: Diagnostic[] = []
   while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
     problems++
 
@@ -207,28 +199,13 @@ connection.onCompletionResolve(
 )
 
 /*
-connection.onDidOpenTextDocument((params) => {
-	// A text document got opened in VSCode.
-	// params.uri uniquely identifies the document. For documents store on disk this is a file URI.
-	// params.text the initial full content of the document.
-	connection.console.log(`${params.textDocument.uri} opened.`);
-});
 connection.onDidChangeTextDocument((params) => {
 	// The content of a text document did change in VSCode.
 	// params.uri uniquely identifies the document.
 	// params.contentChanges describe the content changes to the document.
 	connection.console.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
 });
-connection.onDidCloseTextDocument((params) => {
-	// A text document got closed in VSCode.
-	// params.uri uniquely identifies the document.
-	connection.console.log(`${params.textDocument.uri} closed.`);
-});
 */
 
-// Make the text document manager listen on the connection
-// for open, change and close text document events
 documents.listen(connection)
-
-// Listen on the connection
 connection.listen()
